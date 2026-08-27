@@ -3,8 +3,11 @@
 
 using namespace std;
 
-vector < vector < int>> arbol;
-vector < int> lista;
+vector <vector <int >> arbol;
+vector <int > lista;
+vector <int > color ; // -1 = sin visitar , 0 y 1 = los dos colores
+
+// Sin identificar = -1
 
 int main() {
     int n;
@@ -21,4 +24,9 @@ int main() {
         cin >> lista[i];
     }
     return 0;
+}
+
+
+bool recoridoMisterioso(){
+
 }

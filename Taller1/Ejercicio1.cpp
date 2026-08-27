@@ -4,7 +4,7 @@
 using namespace std;
 
 
-vector < int > vendedores;
+vector <int > vendedores;
 
 /*
 vendedores = [6,2,3,4,-1,4,3] esta es una representacion, la posicion reprecenta al empleado y lo q esta en esa posicion representa a su superior, 
