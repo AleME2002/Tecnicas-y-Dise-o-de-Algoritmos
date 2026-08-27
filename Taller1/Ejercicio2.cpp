@@ -57,8 +57,10 @@ int main() {
 }
 
 
-bool recoridoMisterioso(int n){
-    
+bool recoridoMisterioso(){
+    for(int i = 1; i < arbol.size(); i++){
+        
+    }
 }
 
 
