@@ -42,19 +42,15 @@ int cantDeMesas (int n){
 }
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
     int n;
-    if (!(cin >> n)) return 0;
+    cin >> n;
 
     vendedores.resize(n + 1);
     for (int i = 1; i <= n; i++) {
         cin >> vendedores[i];
     }
 
-    cout << cantDeMesas(n) << "\n";
-
+    cout << cantDeMesas(n);
     return 0;
 }
 
