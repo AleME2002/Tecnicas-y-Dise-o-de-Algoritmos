@@ -1,43 +1,58 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
 vector <vector <int >> arbol;
 vector <int > lista;
-vector <int > color; // -1 = sin visitar , 0 y 1 = los dos colores
+vector <int > color;
 
-// Sin identificar = -1
-// Viendo Actualmente = 0
-// Ya visto = 1
+// Sin visitar = -1
+// Siendo visitado = 0
+// Ya visitado = 1
 
-vector<vector<int>> aristas;
+/*
+vector<vector<int>> arbol = {
+    {},          // Posición 0 (no se usa, para que los índices vayan del 1 al n)
+    {2, 3},      // Vecinos del nodo 1
+    {4, 1},      // Vecinos del nodo 2
+    {1},         // Vecinos del nodo 3
+    {2}          // Vecinos del nodo 4
+};
 
-bool dfs(int v, int c) {
-    color[v] = c;
-    for (int u : aristas[v]) {
-        if (color[u] == -1) {
-            if (!dfs(u, 1 - c)) { // pinto al vecino del color opuesto
-                return false;
+      1
+    /   \
+   2     3
+  /
+ 4
+*/
+
+string recorridoMisterioso() {
+    queue<int> cola;
+    cola.push(1);                                       // Le meto el primer nodo
+    color[1] = 1;                                       // Lo pongo como ya visitado
+    int puntero = 0;            
+
+    if (lista[puntero] != 1){                           // Me fijo si el primer nodo el el 1, sino ya paro
+        return "No";
+    }
+    puntero ++;
+    while (!cola.empty()){
+        int v = cola.front();                           // Guardo el nodo que estoy visitando
+        cola.pop();                                     // Lo saco de la cola
+        for (int i = 0; i < arbol[v].size(); i++){      // Itero sobre los vecinos
+            if (color[arbol[v][i]] != 1){               // Si no estan visitados, los meto en la cola
+                cola.push(arbol[v][i]);
             }
-        } else if (color[u] == c) { // vecino con mi mismo color -> no bipartito
-            return false;
         }
     }
-    return true;
+    return "Yes";
 }
 
-bool esBipartito(int n) {
-    color.assign(n, -1);
-    for (int v = 0; v < n; v++) {
-        if (color[v] == -1) {
-            if (!dfs(v, 0)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
+/*
+
+*/
 
 int main() {
     int n;
@@ -53,14 +68,8 @@ int main() {
     for (int i = 0; i < n; i++) {
         cin >> lista[i];
     }
-    color.assign(n, -1);
-}
-
-
-bool recoridoMisterioso(){
-    for(int i = 1; i < arbol.size(); i++){
-        
-    }
+    color.assign(n + 1, -1);
+    recorridoMisterioso();
 }
 
 
