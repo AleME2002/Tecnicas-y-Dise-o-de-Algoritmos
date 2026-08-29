@@ -37,7 +37,7 @@ string recorridoMisterioso() {
     color[1] = 1;                                               // Lo pongo como ya visitado
     int puntero = 0;            
 
-    if (lista[puntero] != 1){                                   // Me fijo si el primer nodo el el 1, sino ya paro
+    if (lista[puntero] != 1){                                   // Me fijo si el primer nodo es el 1, sino ya paro
         return "No";
     }
     puntero++;
