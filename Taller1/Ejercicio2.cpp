@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <set>
 
 using namespace std;
 
@@ -27,7 +28,9 @@ vector<vector<int>> arbol = {
   /
  4
 */
-
+/*
+La idea es poner el vertice inicial en la cola, a partir de ahi meto sus vecinos en la cola y saco al vertice v cambiandole el color a visitado, y repito esto con todos los vertices
+*/
 string recorridoMisterioso() {
     queue<int> cola;
     cola.push(1);                                       // Le meto el primer nodo
@@ -37,22 +40,30 @@ string recorridoMisterioso() {
     if (lista[puntero] != 1){                           // Me fijo si el primer nodo el el 1, sino ya paro
         return "No";
     }
-    puntero ++;
+    puntero++;
     while (!cola.empty()){
         int v = cola.front();                           // Guardo el nodo que estoy visitando
         cola.pop();                                     // Lo saco de la cola
+
+        int vNoVisitados = 0;
+        set<int> vecinosNoVisitados; 
+
         for (int i = 0; i < arbol[v].size(); i++){      // Itero sobre los vecinos
             if (color[arbol[v][i]] != 1){               // Si no estan visitados, los meto en la cola
                 cola.push(arbol[v][i]);
+                vNoVisitados++;
+            }
+        }
+
+        for (int i = 0; i < vNoVisitados; i++){
+            if (!vecinosNoVisitados.count(lista[puntero + i])){
+                return "No";
             }
         }
     }
     return "Yes";
 }
 
-/*
-
-*/
 
 int main() {
     int n;
