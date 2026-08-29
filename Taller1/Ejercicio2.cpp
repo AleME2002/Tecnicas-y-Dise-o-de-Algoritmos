@@ -63,6 +63,7 @@ string recorridoMisterioso() {
             color[vecinoActual] = 1;
             cola.push(vecinoActual);
         }
+        puntero += cantVecinosNoVisitados; 
     }
     return "Yes";
 }
