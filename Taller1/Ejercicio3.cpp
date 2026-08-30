@@ -8,6 +8,7 @@ using namespace std;
 vector <vector <char >> letras;
 vector <string > nombres;
 vector<int> color; 
+vector<int> orden;
 
 // sin visitar = -1
 // Siendo visitados = 0
@@ -40,39 +41,35 @@ string lexicoNoSeQue(){
             char letra1 = nombres[i][j];
             char letra2 = nombres[i + 1][j];
             if (letra1 != letra2){                                                  // Si son distintas, meto a la letra1 en la lista de la letra2
-                letras[letra2 - 'a'].push_back(letra1);
+                letras[letra1 - 'a'].push_back(letra2);
                 break;                                                              // Lo corto para q no siga comparando letras
             }
         }
     }
-    string res = "";
+    string res = dfs(0);
 
-    for (int i = 0; i < 26; i++){
-        color[i] = 1;
-        if (letras[i].empty()){
-            res += i + 'a';
-        }else{
-            for (int j = 0; j < letras[i].size(); j++){
-                res += letras[i][j] + 'a';
-            }
-            res += i + 'a';
-        }
+    for (int i : orden){
+        res += (char)(i + 'a');
     }
     return res;
 }
 
 string dfs(int v) {
-    queue<int> cola;
+    
     color[v] = 0;
-    string res = "";
     for (int u : letras[v]) {           // Itero entre las letras
-        if (color[u] == 0) {           // Me fijo si el color de la letra es -1
+        if (color[u] == -1) {           // Me fijo si el color de la letra es -1
+            string res = dfs(u);        // pinto al vecino del color opuesto
+            if (res == "Impossible"){
+                return "Impossible";
+            }
+        }else if (color[u] == 0) {      // vecino con mi mismo color -> no bipartito
             return "Impossible";
-        }else if (color[u] == -1) {      // vecino con mi mismo color -> no bipartito
-            res = dfs(u);               // pinto al vecino del color opuesto
         }
     }
+    orden.push_back(v);
     color[v] = 1;
+    string res = "";
     return res;
 }
 
