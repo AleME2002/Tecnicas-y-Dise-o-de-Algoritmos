@@ -7,7 +7,11 @@ using namespace std;
 
 vector <vector <char >> letras;
 vector <string > nombres;
-vector<int> color; // -1 = sin visitar, 0 y 1 = los dos colores
+vector<int> color; 
+
+// sin visitar = -1
+// Siendo visitados = 0
+// Ya visitados = 1
 
 // a=0, b=1, ..., z=25
 
@@ -26,7 +30,6 @@ letras[[ ],[ ],...,['a'],...[ ]]
 
 string lexicoNoSeQue(){
     
-    queue<int> cola;
     color.assign(26, -1);
     int longitudPalabraActual = 0;
     for (int i = 0; i < nombres.size() - 1; i++){                                   // Itero sobre los nombres
@@ -45,6 +48,7 @@ string lexicoNoSeQue(){
     string res = "";
 
     for (int i = 0; i < 26; i++){
+        color[i] = 1;
         if (letras[i].empty()){
             res += i + 'a';
         }else{
@@ -57,17 +61,19 @@ string lexicoNoSeQue(){
     return res;
 }
 
-bool dfs(int v, int c) {
-    color[v] = c;
-    for (int u : aristas[v]) {
-        if (color[u] == -1) {
-            if (!dfs(u, 1 - c)) // pinto al vecino del color opuesto
-                return false;
-        } else if (color[u] == c) { // vecino con mi mismo color -> no bipartito
-            return false;
+string dfs(int v) {
+    queue<int> cola;
+    color[v] = 0;
+    string res = "";
+    for (int u : letras[v]) {           // Itero entre las letras
+        if (color[u] == 0) {           // Me fijo si el color de la letra es -1
+            return "Impossible";
+        }else if (color[u] == -1) {      // vecino con mi mismo color -> no bipartito
+            res = dfs(u);               // pinto al vecino del color opuesto
         }
     }
-    return true;
+    color[v] = 1;
+    return res;
 }
 
 
