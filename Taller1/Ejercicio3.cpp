@@ -1,11 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
 
 vector <vector <char >> letras;
 vector <string > nombres;
+vector<int> color; // -1 = sin visitar, 0 y 1 = los dos colores
 
 // a=0, b=1, ..., z=25
 
@@ -24,6 +26,8 @@ letras[[ ],[ ],...,['a'],...[ ]]
 
 string lexicoNoSeQue(){
     
+    queue<int> cola;
+    color.assign(26, -1);
     int longitudPalabraActual = 0;
     for (int i = 0; i < nombres.size() - 1; i++){                                   // Itero sobre los nombres
         longitudPalabraActual = min(nombres[i].size(), nombres[i+1].size());        // Agarro la palabra mas chica ya que si nombre[i+1] fuera mas chica, habria problemas
@@ -38,9 +42,32 @@ string lexicoNoSeQue(){
             }
         }
     }
+    string res = "";
 
-    
-    return "";
+    for (int i = 0; i < 26; i++){
+        if (letras[i].empty()){
+            res += i + 'a';
+        }else{
+            for (int j = 0; j < letras[i].size(); j++){
+                res += letras[i][j] + 'a';
+            }
+            res += i + 'a';
+        }
+    }
+    return res;
+}
+
+bool dfs(int v, int c) {
+    color[v] = c;
+    for (int u : aristas[v]) {
+        if (color[u] == -1) {
+            if (!dfs(u, 1 - c)) // pinto al vecino del color opuesto
+                return false;
+        } else if (color[u] == c) { // vecino con mi mismo color -> no bipartito
+            return false;
+        }
+    }
+    return true;
 }
 
 
