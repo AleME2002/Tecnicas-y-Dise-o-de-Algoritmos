@@ -48,11 +48,13 @@ cajaOff  = Caja off
 cajaNada = Caja Nada
 
 {-
-data Circuito = Caja     Caja
-              | Serie    Circuito Circuito
-              | Paralelo Caja Circuito Circuito Caja
-
-data Caja = Bombilla Bool | Nada
+comentarios y consideraciones del viernes 4/9: 
+  ▶ una caja vacia conduce 
+  ▶ "los bugs están en los casos más pequeños". 
+      3 <= cantidadTests <= 5 
+      ver de hacer uno por cada constructor? 
+  ▶ en el ej10: quiero que me de el resultado para todas las combinaciones de funciones posibles 
+    darle definicion a la funcion de resistencia
 
 -}
 
@@ -74,28 +76,33 @@ foldCircuito :: (Caja -> b) -> (b -> b -> b) -> (Caja -> b -> b -> Caja -> b) ->
 foldCircuito fCaja fSerie fParalelo = 
   recCircuito 
     fCaja
-    (\_ recCi _ recCd -> fSerie recCi recCd)
+    (\_ recCi _ recCd       -> fSerie recCi recCd)
     (\ce _ recCi _ recCd cs -> fParalelo ce recCi recCd cs)
 
 
 -- 3 invertido
 invertido :: Circuito -> Circuito
 invertido = foldCircuito 
-              (\caja -> Caja caja)
-              (\recCi recCd -> Serie recCd recCi)
+              Caja
+              (\recCi recCd       -> Serie recCd recCi)
               (\ce recCi recCd cs -> Paralelo cs recCd recCi ce) 
+
 
 -- 4: hayCaminoIluminado
 -- solo considera las cajas con bombillas prendidas 
 hayCaminoIluminado :: Circuito -> Bool 
 hayCaminoIluminado = 
   recCircuito 
-    esCajaIluminada
-    (\_ recCi _ recCd -> recCi && recCd)
+    esCajaConductora 
+    (\_ recCi _ recCd         -> recCi && recCd)
     (\ce ci recCi cd recCd cs -> 
       esCajaIluminada ce && (recCi || recCd) && esCajaIluminada cs)
 
-  
+  where 
+    esCajaConductora :: Caja -> Bool 
+    esCajaConductora caja = esCajaIluminada caja || caja == Nada
+
+
 esCajaIluminada :: Caja -> Bool 
 esCajaIluminada = (== on)
 
@@ -121,7 +128,7 @@ cantidadPrendidas =
 
 cajasDeCircuito :: Circuito -> [Caja]
 cajasDeCircuito = foldCircuito
-  (\caja -> [caja])
+  (\caja              -> [caja])
   (++)
   (\ce recCi recCd cs -> [ce] ++ recCi ++ recCd ++ [cs])
 
@@ -136,34 +143,12 @@ esCircuitoProlijo = recCircuito
         Serie _ _ -> False 
         _         -> recCi && recCd)
   (\_ _ recCi _ recCd _ -> recCi && recCd)
-
--- 8: circuitoEmprolijado 
--- PREGUNTAR ¡!¡!¡!¡!
-
--- de clase del 28/6: hay que ordenar usando lógica pre-oreden. 
--- tirar todas las series la la izq 
--- (no se puede usar Paralelo ni modificar la estructura en si. se debe preservar 
--- el "camino" de las luces y el estado y cantindad de las bombillas en las cajas )
-
-circuitoEmprolijado :: Circuito -> Circuito
-circuitoEmprolijado c = 
-  if esCircuitoProlijo c 
-  then c 
-  else foldCircuito
-        (\caja -> Caja caja)
-        (\recCi recCd -> Serie recCd recCi) 
-        -- pero qué pasa si tengo 
-        -- Serie ci cd, donde ambos son Series?
-        -- o sea, Serie (Serie 1) (Serie 2)
-
-        -- cuando lo de vuelta no va a ser prolijo porque en 
-        -- la segunda posición aún voy a tener una Serie 😛
-        (\ce recCi recCd cs -> Paralelo ce recCi recCd cs) c
+  
 
 -- 9: tienenLaMismaEstructura 
 {-
 Para resolver el ejercicio, decidimos tomar las ideas aportadas para la función "take" vistas en clase. 
-Tanto recCI y como recCd será una función de tipo Circuito -> Bool, para que podamos pasarle el segundo circuito (c2)
+Tanto recCI y como recCd serán una función de tipo Circuito -> Bool, para que podamos pasarle el segundo circuito (c2)
 y así comparar su estructura. 
 -}
 
@@ -189,12 +174,26 @@ resistenciaCircuito = undefined
 
 subCircuitoMásResistente :: Circuito -> Circuito
 subCircuitoMásResistente = recCircuito
-  (\caja -> Caja caja)
+  Caja 
   (\ci recCi cd recCd -> comparar (comparar (comparar ci recCi) (comparar cd recCd)) (Serie ci cd))
   (\ce ci recCi cd recCd cs -> comparar (comparar (comparar ci recCi) (comparar cd recCd)) (Paralelo ce ci cd cs))
     where
       comparar :: Circuito -> Circuito -> Circuito 
       comparar c1 c2 = if resistenciaCircuito c1 >= resistenciaCircuito c2 then c1 else c2
+
+{-- OPCIÓN PARA TESTEAR
+subCircuitoMásResistente' :: (Circuito -> Float) -> Circuito -> Circuito
+subCircuitoMásResistente' f = recCircuito
+  Caja 
+  (\ci recCi cd recCd -> comparar (comparar (comparar ci recCi) (comparar cd recCd)) (Serie ci cd))
+  (\ce ci recCi cd recCd cs -> comparar (comparar (comparar ci recCi) (comparar cd recCd)) (Paralelo ce ci cd cs))
+    where
+      comparar :: Circuito -> Circuito -> Circuito 
+      comparar c1 c2 = if f c1 >= f c2 then c1 else c2
+
+subCircuitoMásResistente :: Circuito -> Circuito
+subCircuitoMásResistente = subCircuitoMásResistente' resistenciaCircuito
+--}
 
 {-- 11: Demostrar: alternado . alternado = id
 
@@ -217,42 +216,56 @@ id :: a -> a
 not :: Bool -> Bool
 {NT} not True = False
 {NF} not False = True
+
 ------------------------------------------------------------------------------------------------
 
-Principio de inducción sobre cajas 
+PRINCIPIO DE INDUCCIÓN SOBRE CAJAS: 
 
 data Caja = Bombilla Bool | Nada
 
 Sea P una propiedad sobre expresiones del tipo Caja, basta mostrar que vale: 
-  ▷ ∀b :: Bool. P(b), entonces P(Bombilla b) 
+  ▷ ∀b :: Bool. 
+    P(b), entonces P(Bombilla b) 
   ▷ P(Nada)
 Entonces, vale ∀x :: Caja. P(x). 
 
 ------------------------------------------------------------------------------------------------
 
-Principio de inducción sobre circuitos
+PRINCIPIO DE INDUCCIÓN SOBRE CIRCUITOS: (ↈ)
 
 data Circuito = Caja     Caja
               | Serie    Circuito Circuito
               | Paralelo Caja Circuito Circuito Caja
 
-(ↈ)
 Sea P una propiedad sobre expresiones de tipo Circuito basta mostrar que vale: 
-  ▷ ∀caja :: Caja. P(Caja caja)
-  ▷ ∀ci :: Circuito. ∀cd :: Circuito. P(ci) ∧ P(cd), entonces P(Serie ci cd)
-  ▷ ∀ce :: Caja. ∀ci :: Circuito. ∀cd :: Circuito. ∀cd :: Caja. P(ci) ∧ P(cd), entonces P(Paralelo ce ci cd cs)
+  ▷ ∀caja :: Caja. 
+    P(Caja caja)                                                  [caso base]
+  ▷ ∀ci :: Circuito. ∀cd :: Circuito. 
+    P(ci) ∧ P(cd), entonces P(Serie ci cd)                        [caso recursivo]
+  ▷ ∀ce :: Caja. ∀ci :: Circuito. ∀cd :: Circuito. ∀cs :: Caja.                     
+    P(ci) ∧ P(cd), entonces P(Paralelo ce ci cd cs)               [caso recursivo] 
 Entonces, vale ∀x :: Circuito. P(x). 
+
+------------------------------------------------------------------------------------------------
+
+DEMO: 
 
 Queremos demostrar la siguiente propiedad: alternado . alternado = id
 
-Por extensionalidad funcional, nos bastaría demostrar que ∀x :: Circuito. (alternado . alternado) x = id x
-Por {C}, esto es lo mismo que demostar que ∀x :: Circuito. alternado(alternado x) = id x
+Por extensionalidad funcional, nos bastaría demostrar que:  
+  ∀x :: Circuito. (alternado . alternado) x = id x
+
+Por {C}, esto es lo mismo que demostar que: 
+  ∀x :: Circuito. alternado (alternado x) = id x
+
+Definimos P(x) ≡ alternado (alternado x) = id x
 
 Por inducción sobre Circuitos, bastaría con demostrar (ↈ). 
-Siendo P(x): alternado(alternado x) = id x. 
 
-  ▷ ∀caja :: Caja. 
-    P(Caja caja): alternado(alternado (Caja caja)) = id (Caja caja)
+
+
+▷ CASO BASE: Caja 
+  ∀caja :: Caja. P(Caja caja) ≡ alternado(alternado (Caja caja)) = id (Caja caja)
 
       - alternado(alternado (Caja caja)) 
         {AC} = alternado(Caja (cajaAlternada caja))
@@ -269,14 +282,15 @@ Siendo P(x): alternado(alternado x) = id x.
 
         Probemos  
           ▷ ∀b :: Bool. Q(Bombilla b) 
-            Por inducción sobre booleanos, basta probar que Q(Bombilla True) y Q(Bombilla False)
+            Por lema de generación sobre booleanos, b = True o b = False.
+            Basta probar que Q(Bombilla True) y Q(Bombilla False)
 
             - Q(Bombilla True): Caja (cajaAlternada (cajaAlternada (Bombilla True))) = id (Caja (Bombilla True))
 
               -- Caja (cajaAlternada (cajaAlternada (Bombilla True))) 
-                {CAB} = Caja (cajaAlternada (Bombilla not True)) 
-                {NT}  = Caja (cajaAlternada (Bombilla False)) 
-                {CAB} = Caja (Bombilla not False) 
+                {CAB} = Caja (cajaAlternada (Bombilla (not True))) 
+                {CAB} = Caja (Bombilla (not (not True)))) 
+                {NT}  = Caja (Bombilla (not False))
                 {NF}  = Caja (Bombilla True) 
                 {I}   = id (Caja (Bombilla True)) 
 
@@ -284,10 +298,10 @@ Siendo P(x): alternado(alternado x) = id x.
             
             - Q(Bombilla False): Caja (cajaAlternada (cajaAlternada (Bombilla False))) = id (Caja (Bombilla False))
 
-              -- Caja (cajaAlternada (cajaAlternada (Bombilla False))) 
-                {CAB} = Caja (cajaAlternada (Bombilla not False)) 
-                {NF}  = Caja (cajaAlternada (Bombilla True)) 
-                {CAB} = Caja (Bombilla not True) 
+             -- Caja (cajaAlternada (cajaAlternada (Bombilla False))) 
+                {CAB} = Caja (cajaAlternada (Bombilla (not False))) 
+                {CAB} = Caja (Bombilla (not (not False)))) 
+                {NF}  = Caja (Bombilla (not True))
                 {NT}  = Caja (Bombilla False) 
                 {I}   = id (Caja (Bombilla False)) 
 
@@ -302,32 +316,116 @@ Siendo P(x): alternado(alternado x) = id x.
 
               Que era lo que queríamos probar. 
 
+  Por lo tanto, P(Caja caja) queda demostrado. 
 
-  ▷ ∀ci :: Circuito. ∀cd :: Circuito. P(ci) ∧ P(cd), entonces P(Serie ci cd)
+
+
+▷ CASO RECURSIVO: Serie 
+    ∀ci :: Circuito. ∀cd :: Circuito. 
+      P(ci) ∧ P(cd), entonces P(Serie ci cd)
+
+    Hipótesis inductiva: 
+      P(ci) ≡ alternado (alternado ci) = id ci
+      P(cd) ≡ alternado (alternado cd) = id cd
+    
+    Queremos probar: 
     P(Serie ci cd): alternado(alternado (Serie ci cd)) = id (Serie ci cd)
 
-    - alternado(alternado (Serie ci cd))
-      {AS} = alternado(Serie (alternado ci) (alternado cd)) 
-      {AS} = Serie (alternado(alternado ci)) (alternado(alternado cd))
-      {HI} = Serie (id ci) (id cd) 
-      {I}  = Serie ci cd 
-      {I}  = id (Serie ci cd) 
+    Entonces: 
+      - alternado(alternado (Serie ci cd))
+        {AS} = alternado(Serie (alternado ci) (alternado cd)) 
+        {AS} = Serie (alternado(alternado ci)) (alternado(alternado cd))
+        {HI} = Serie (id ci) (id cd) 
+        {I}  = Serie ci (id cd) 
+        {I}  = Serie ci cd 
+        {I}  = id (Serie ci cd) 
+  
+  Por lo tanto, P(Serie ci cd) queda demostrado. 
 
-  ▷ ∀ce :: Caja. ∀ci :: Circuito. ∀cd :: Circuito. ∀cd :: Caja. P(ci) ∧ P(cd), entonces P(Paralelo ce ci cd cs)
-    P(Paralelo ce ci cd cs): alternado(alternado (Paralelo ce ci cd cs)) = id (Paralelo ce ci cd cs)
 
-    - alternado(alternado (Paralelo ce ci cd cs))
-      {AP} = alternado(Paralelo (cajaAlternada ce) (alternado ci) (alternado cd) (cajaAlternada cs))
-      {AP} = Paralelo (cajaAlternado(cajaAlternada ce)) (alternado(alternado ci)) (alternado(alternado cd)) (cajaAlternado(cajaAlternada cs))
-      {HI} = Paralelo (cajaAlternado(cajaAlternada ce)) (id ci) (id cd) (cajaAlternado(cajaAlternada cs))
-      {por haber probado Q(x) en inducción sobre cajas} 
-          = Paralelo (id ce) (id ci) (id cd) (id cs)
-      {I}  = Paralelo ce ci cd cs 
-      {I}  = id (Paralelo ce ci cd cs)
+
+▷ CASO RECURSIVO: Paralelo
+    ∀ce :: Caja. ∀ci :: Circuito. ∀cd :: Circuito. ∀cd :: Caja. 
+      P(ci) ∧ P(cd), entonces P(Paralelo ce ci cd cs)
+
+    Hipótesis inductiva: 
+      P(ci) ≡ alternado (alternado ci) = id ci
+      P(cd) ≡ alternado (alternado cd) = id cd
+    
+    Queremos probar: 
+    P(Paralelo ce ci cd cs) ≡ alternado(alternado (Paralelo ce ci cd cs)) = id (Paralelo ce ci cd cs)
+
+      - alternado(alternado (Paralelo ce ci cd cs))
+        {AP}   = alternado(Paralelo (cajaAlternada ce) (alternado ci) (alternado cd) (cajaAlternada cs))
+        {AP}   = Paralelo (cajaAlternada (cajaAlternada ce)) 
+                          (alternado (alternado ci)) 
+                          (alternado (alternado cd)) 
+                          (cajaAlternada (cajaAlternada cs))
+        {HI}   = Paralelo (cajaAlternada (cajaAlternada ce)) (id ci) (id cd) (cajaAlternada (cajaAlternada cs))
+        {LEMA} = Paralelo (id ce) (id ci) (id cd) (id cs)
+        {I}    = Paralelo ce (id ci) (id cd) (id cs)
+        {I}    = Paralelo ce  ci (id cd) (id cs)
+        {I}    = Paralelo ce  ci cd (id cs)
+        {I}    = Paralelo ce ci cd cs 
+        {I}    = id (Paralelo ce ci cd cs)
+
+  Por lo tanto, P(Paralelo ce ci cd cs) queda demostrado. 
+
+
+
+DEMOSTRACIÓN DEL LEMA:  
+
+  Lema: ∀c :: Caja. cajaAlternada(cajaAlternada c) = id c
+    
+    Sea R(c) ≡ cajaAlternada(cajaAlternada c) = id c
+    
+    Por inducción estructural sobre cajas, para probar R(x), basta probar:
+      ▷ ∀b :: Bool. R(Bombilla b)
+      ▷ R(Nada)
+
+      ▷ CASO: Bombilla 
+          ∀b :: Bool. R(Bombilla b)
+
+          Por lema de generación de booleanos, b = True o b = False. 
+          Luego para probar R(Bombilla b), basta probar R(Bombilla True) y R(Bombilla False).
+
+            ▷ Caso b = True
+              R(Bombilla True) ≡ cajaAlternada (cajaAlternada (Bombilla True)) = id (Bombilla True)
+
+              - cajaAlternada(cajaAlternada (Bombilla True))
+                {CAB} = cajaAlternada (Bombilla (not True))
+                {CAB} = Bombilla (not (not True))
+                {NT}  = Bombilla (not False)
+                {NF}  = Bombilla True
+                {I}   = id (Bombilla True)
+
+            ▷ Caso b = False 
+              R(Bombilla False) ≡ cajaAlternada(cajaAlternada (Bombilla False)) = id (Bombilla False)
+
+              - cajaAlternada(cajaAlternada (Bombilla False))
+                {CAB} = cajaAlternada (Bombilla (not False))
+                {CAB} = Bombilla (not (not False))
+                {NF}  = Bombilla (not True)
+                {NT}  = Bombilla False
+                {I}   = id (Bombilla False)
+
+      ▷ CASO: Nada 
+          R(Nada) ≡ cajaAlternada (cajaAlternada Nada) = id Nada
+
+          - cajaAlternada (cajaAlternada Nada)
+            {CAN} = cajaAlternada Nada 
+            {CAN} = Nada
+            {I}   = id Nada
+
+  Por lo tanto, ∀c :: Caja. cajaAlternada (cajaAlternada c) = id c
+
+Hemos demostrado los tres casos del principio de inducción sobre circuitos (ↈ).
+
+Por lo tanto, ∀x :: Circuito. P(x) se cumple.                           
 --}
 
 
-ejemplo = Serie
+ejemplo1 = Serie
             ( Paralelo
                 on
                 (Paralelo off cajaNada cajaOn on)
@@ -335,13 +433,29 @@ ejemplo = Serie
                 on
             )
             cajaOn
+
+ejemplo1_invertido = Serie
+                      cajaOn
+                      ( Paralelo
+                          on
+                          (Paralelo Nada cajaOff cajaOn Nada)
+                          (Paralelo on cajaOn cajaNada off)
+                          on
+                      )
+
 ejemplo2 = Serie cajaOn (Serie cajaOff cajaOn)
 
 ejemplo3 = Serie
             ( Paralelo
-                off
-                (Paralelo on cajaOn cajaOn off)
+                on
+                (Paralelo on cajaOn cajaOn on)
                 (Paralelo on cajaOn cajaOff on)
                 on
             )
-            cajaNada
+            cajaOn
+
+
+{-
+Eliminar 'esIluminado' del ejercicio 4/5 
+Hacer resistenciaCircuito de ejercicio 10
+-}
