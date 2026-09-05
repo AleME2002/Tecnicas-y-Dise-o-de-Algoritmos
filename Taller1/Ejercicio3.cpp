@@ -48,20 +48,36 @@ string dfs(int v) {
     string res = "";
     return res;
 }
+ 
+bool pertenece(char l, vector<int> lista){
+    for (int i = 0; i < lista.size(); i++){
+        if (lista[i] == l){
+            return true;
+        }
+    }
+    return false;
+}
 
 string lexicoNoSeQue(){
     
     color.assign(26, -1);
     int longitudPalabraActual = 0;
     for (int i = 0; i < nombres.size() - 1; i++){                                   // Itero sobre los nombres
+        bool hayDif = false;
         longitudPalabraActual = min(nombres[i].size(), nombres[i+1].size());        // Agarro la palabra mas chica ya que si nombre[i+1] fuera mas chica, habria problemas
         for (int j = 0; j < longitudPalabraActual; j++){                            // Itero entre las letras de las palabras
             char letra1 = nombres[i][j];
             char letra2 = nombres[i + 1][j];
             if (letra1 != letra2){                                                  // Si son distintas, meto a la letra1 en la lista de la letra2
-                letras[letra1 - 'a'].push_back(letra2 - 'a');
+                if (!pertenece(letra2 - 'a', letras[letra1 - 'a'])){                // Me fijo si la letra2 ya pertenece a la lista de la letra1
+                    letras[letra1 - 'a'].push_back(letra2 - 'a');
+                }
+                hayDif = true;
                 break;                                                              // Lo corto para q no siga comparando letras
             }
+        }
+        if (!hayDif && nombres[i].size() > nombres[i + 1].size()) {
+            return "Impossible";
         }
     }
 
