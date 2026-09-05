@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include <queue>
 
@@ -46,11 +47,23 @@ string lexicoNoSeQue(){
             }
         }
     }
-    string res = dfs(0);
 
+    for (int i = 0; i < 26; i++){
+        if (color[i] == -1){
+            string res = dfs(i);
+            if (res == "Impossible"){
+                return res;
+            }            
+        }
+    }
+
+    reverse(orden.begin(), orden.end());
+
+    string res = "";
     for (int i : orden){
         res += (char)(i + 'a');
     }
+
     return res;
 }
 
@@ -63,7 +76,7 @@ string dfs(int v) {
             if (res == "Impossible"){
                 return "Impossible";
             }
-        }else if (color[u] == 0) {      // vecino con mi mismo color -> no bipartito
+        }else if (color[u] == 0) {      // vecino con mi mismo color -> hay un ciclo
             return "Impossible";
         }
     }
@@ -79,7 +92,7 @@ int main() {
     cin >> n;
     nombres.resize(n);
     letras.resize(26);
-    for (int i = 0; i <= n; i++) {
+    for (int i = 0; i < n; i++) {
         cin >> nombres[i];
     }
     cout << lexicoNoSeQue() << "\n";
