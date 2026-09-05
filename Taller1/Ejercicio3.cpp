@@ -6,7 +6,7 @@
 
 using namespace std;
 
-vector <vector <char >> letras;
+vector <vector <int >> letras;
 vector <string > nombres;
 vector<int> color; 
 vector<int> orden;
@@ -55,13 +55,11 @@ string lexicoNoSeQue(){
     int longitudPalabraActual = 0;
     for (int i = 0; i < nombres.size() - 1; i++){                                   // Itero sobre los nombres
         longitudPalabraActual = min(nombres[i].size(), nombres[i+1].size());        // Agarro la palabra mas chica ya que si nombre[i+1] fuera mas chica, habria problemas
-        if (nombres[i] == nombres[i + 1])                                           // Si son el mismo nombre la corta
-            break;
         for (int j = 0; j < longitudPalabraActual; j++){                            // Itero entre las letras de las palabras
             char letra1 = nombres[i][j];
             char letra2 = nombres[i + 1][j];
             if (letra1 != letra2){                                                  // Si son distintas, meto a la letra1 en la lista de la letra2
-                letras[letra1 - 'a'].push_back(letra2);
+                letras[letra1 - 'a'].push_back(letra2 - 'a');
                 break;                                                              // Lo corto para q no siga comparando letras
             }
         }
