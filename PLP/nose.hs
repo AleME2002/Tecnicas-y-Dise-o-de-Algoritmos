@@ -96,15 +96,11 @@ hayCaminoIluminado =
     esCajaConductora 
     (\_ recCi _ recCd         -> recCi && recCd)
     (\ce ci recCi cd recCd cs -> 
-      esCajaIluminada ce && (recCi || recCd) && esCajaIluminada cs)
+      ce == on && (recCi || recCd) && cs == on)
 
   where 
     esCajaConductora :: Caja -> Bool 
-    esCajaConductora caja = esCajaIluminada caja || caja == Nada
-
-
-esCajaIluminada :: Caja -> Bool 
-esCajaIluminada = (== on)
+    esCajaConductora caja = caja == on || caja == Nada
 
 
 -- 5: cantidadPrendidas
@@ -112,7 +108,7 @@ esCajaIluminada = (== on)
 cantidadPrendidas :: Circuito -> Int 
 cantidadPrendidas =
   foldCircuito
-    (\caja -> if esCajaIluminada caja then 1 else 0) 
+    (\caja -> if caja == on then 1 else 0) 
     (+)
     (\ce recCi recCd cs -> 
       cantidadPrendidasPorLado ce recCi + 
@@ -170,7 +166,20 @@ tienenLaMismaEstructura =
 
 -- 10: subCircuitoMásResistente
 resistenciaCircuito :: Circuito -> Float
-resistenciaCircuito = undefined
+resistenciaCircuito c = 
+  if cantidadTotales c == 0
+    then 0
+    else fromIntegral (cantidadPrendidas c) / fromIntegral (cantidadTotales c)
+  where
+    cantidadTotales :: Circuito -> Int
+    cantidadTotales = foldCircuito
+      (\caja -> if caja /= Nada then 1 else 0)
+      (+)
+      (\ce recCi recCd cs -> contarCaja ce + recCi + recCd + contarCaja cs)
+
+    contarCaja :: Caja -> Int
+    contarCaja caja = if caja /= Nada then 1 else 0
+
 
 subCircuitoMásResistente :: Circuito -> Circuito
 subCircuitoMásResistente = recCircuito
