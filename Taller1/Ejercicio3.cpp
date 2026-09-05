@@ -30,6 +30,25 @@ letras[[ ],[ ],...,['a'],...[ ]]
 
 */
 
+string dfs(int v) {
+    
+    color[v] = 0;
+    for (int u : letras[v]) {           // Itero entre las letras
+        if (color[u] == -1) {           // Me fijo si el color de la letra es -1
+            string res = dfs(u);        // pinto al vecino del color opuesto
+            if (res == "Impossible"){
+                return "Impossible";
+            }
+        }else if (color[u] == 0) {      // vecino con mi mismo color -> hay un ciclo
+            return "Impossible";
+        }
+    }
+    orden.push_back(v);
+    color[v] = 1;
+    string res = "";
+    return res;
+}
+
 string lexicoNoSeQue(){
     
     color.assign(26, -1);
@@ -48,7 +67,7 @@ string lexicoNoSeQue(){
         }
     }
 
-    for (int i = 0; i < 26; i++){
+    for (int i = 0; i < 26; i++){               // Me fijo letra por letra si ya fueron chequeadas y sino hago dfs adentro
         if (color[i] == -1){
             string res = dfs(i);
             if (res == "Impossible"){
@@ -64,25 +83,6 @@ string lexicoNoSeQue(){
         res += (char)(i + 'a');
     }
 
-    return res;
-}
-
-string dfs(int v) {
-    
-    color[v] = 0;
-    for (int u : letras[v]) {           // Itero entre las letras
-        if (color[u] == -1) {           // Me fijo si el color de la letra es -1
-            string res = dfs(u);        // pinto al vecino del color opuesto
-            if (res == "Impossible"){
-                return "Impossible";
-            }
-        }else if (color[u] == 0) {      // vecino con mi mismo color -> hay un ciclo
-            return "Impossible";
-        }
-    }
-    orden.push_back(v);
-    color[v] = 1;
-    string res = "";
     return res;
 }
 
