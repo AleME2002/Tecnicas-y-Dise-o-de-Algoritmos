@@ -17,16 +17,13 @@ vector<int> orden;
 
 // a=0, b=1, ..., z=25
 
-//  g    p
-// [p], [ ]
-
 /*
 Si una letra esta antes q otra, pongo a la letra1 en la lista de la letra2
 Ejemplo
 nombres = ["pedro", "alejo"]         
 'p' esta antes q 'a' por lo tanto queda
-        a   b        p       z
-letras[[ ],[ ],...,['a'],...[ ]]
+         a    b       z
+letras[['p'],[ ],...,[ ]]
 
 */
 
