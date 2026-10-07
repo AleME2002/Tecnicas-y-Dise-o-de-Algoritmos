@@ -17,11 +17,11 @@ using namespace std;
 int diasDeDescanzo(vector <int > v){
     int ultimo = 0;                                     //Guarda lo q hizo el dia anterior, 0 si descanzo, 1 si compitio, 2 si fue al gym
     int res = 0; 
-    for (int x : v) {
-        if ((x == 1 || x == 3) && ultimo != 1) {
+    for (int i : v) {
+        if ((i == 1 || i == 3) && ultimo != 1) {
             ultimo = 1;  
         } 
-        else if ((x == 2 || x == 3) && ultimo != 2) {
+        else if ((i == 2 || i == 3) && ultimo != 2) {
             ultimo = 2;
         }  
         else {  
