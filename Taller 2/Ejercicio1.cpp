@@ -14,19 +14,22 @@ using namespace std;
 */
 
 
-
-int organizarVacaciones(vector <int > v){
-    vector<bool > descanso(2, false);                       // Si es falso significa q no necesita descansar, el 1ero es para gym y el 2do para estudiar
-    int res;
-    for (int i: v){
-        if (i == 0){
-            res += 1;
-            fill(descanso.begin(), descanso.end(), false);
-        }
-        else if (i == 1){
-            
+int diasDeDescanzo(vector <int > v){
+    int ultimo = 0;                                     //Guarda lo q hizo el dia anterior, 0 si descanzo, 1 si compitio, 2 si fue al gym
+    int res = 0; 
+    for (int x : v) {
+        if ((x == 1 || x == 3) && ultimo != 1) {
+            ultimo = 1;  
+        } 
+        else if ((x == 2 || x == 3) && ultimo != 2) {
+            ultimo = 2;
+        }  
+        else {  
+            res++;
+            ultimo = 0; 
         }
     }
+    return res;
 }
 
 int main() {
@@ -35,8 +38,8 @@ int main() {
 
     vector <int > vacaciones(n);
 
-    for (int i = 1; i <= n; i++) {
+    for (int i = 1; i < n; i++) {
         cin >> vacaciones[i];
     }
-    cout << organizarVacaciones(vacaciones);
+    cout << diasDeDescanzo(vacaciones);
 }
