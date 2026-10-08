@@ -8,18 +8,15 @@ int diasDeDescanzo(vector<int>& v) {
 
     for (int i = 0; i < v.size(); i++) {
         if (i > 0) {
-            
             if (v[i - 1] == 1) {
                 if (v[i] == 1) v[i] = 0;      
                 else if (v[i] == 3) v[i] = 2; 
             }
-            
             else if (v[i - 1] == 2) {
                 if (v[i] == 2) v[i] = 0;      
                 else if (v[i] == 3) v[i] = 1; 
             }
         }
-
         if (v[i] == 0) {
             res++;
         }
@@ -33,7 +30,7 @@ int main() {
     cin.tie(NULL);
 
     int n;
-    if (!(cin >> n)) return 0;
+    cin >> n;
 
     vector<int> vacaciones(n);
     for (int i = 0; i < n; i++) {
