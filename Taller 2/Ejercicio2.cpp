@@ -21,19 +21,19 @@ int costoGasoducto(string ruta, int ct, int cp){
         } 
         else{ 
             if (costo1 != -1 && costo2 != -1) {
-                nuevo1 = min(costo1 + ct + cp, costo2 + 2*ct +cp); 
+                nuevo1 = min(costo1 + ct + cp, costo2 + 2*ct + cp); 
             }else if (costo1 != -1) {
                 nuevo1 = costo1 + ct + cp;
             }else if (costo2 != -1){
-                nuevo1 = costo2 + 2*ct +cp;
+                nuevo1 = costo2 + 2*ct + cp;
             }
  
             if (costo1 != -1 && costo2 != -1) {
-                nuevo2 = min(costo1 + 2*ct + 2*cp, costo2 + 2*ct +cp);
+                nuevo2 = min(costo1 + 2*ct + 2*cp, costo2 + ct + 2*cp);
             }else if (costo1 != -1) {
                 nuevo2 = costo1 + 2*ct + 2*cp;
             }else if (costo2 != -1){
-                nuevo2 = costo2 + 2*ct +cp; 
+                nuevo2 = costo2 + ct + 2*cp; 
             }
         }
         costo1 = nuevo1; 
@@ -51,6 +51,6 @@ int main() {
         string ruta;
 
         cin >> n >> costoTubo >> costoPilar >> ruta;
-        cout << costoGasoducto(ruta, costoTubo, costoPilar);
+        cout << costoGasoducto(ruta, costoTubo, costoPilar) << '\n';
     }
 }
